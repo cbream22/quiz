@@ -1,64 +1,51 @@
 console.log("script.js connected!");
 
-// Object to store user answers
-const userAnswers = {};
+// Store answers
+let userAnswers = {};
 
 // Select all question blocks
 const questionBlocks = document.querySelectorAll(".question-block");
 
 // Loop through each question block
 questionBlocks.forEach((block, index) => {
-  const buttons = block.querySelectorAll(".answer-btn");
+  const answerButtons = block.querySelectorAll(".answer-btn");
 
-  buttons.forEach(btn => {
+  answerButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      // Remove "selected" class from all buttons in this block
-      buttons.forEach(b => b.classList.remove("selected"));
-
-      // Add "selected" class to the clicked button
+      // Remove previous selection for this question
+      answerButtons.forEach((b) => b.classList.remove("selected"));
+      // Highlight clicked button
       btn.classList.add("selected");
-
-      // Store the user's selected answer
-      userAnswers[index] = btn.getAttribute("data-answer");
+      // Save answer
+      userAnswers[index] = btn.dataset.answer;
+      console.log("User Answers:", userAnswers);
     });
   });
 });
 
-// Handle the "Show Results" button click
-document.getElementById("show-result").addEventListener("click", () => {
-  const answers = Object.values(userAnswers);
+// Show results button
+document.getElementById("show-result").addEventListener("click", displayResult);
 
-  // Check if all questions are answered
-  if (answers.length < questionBlocks.length) {
-    document.getElementById("result-text").textContent =
-      "Please answer all the questions before seeing your result!";
-    document.getElementById("result-container").style.display = "block";
-    return;
+// Display result function
+function displayResult() {
+  let score = 0;
+
+  // Simple scoring logic (customize for your quiz)
+  for (let key in userAnswers) {
+    if (userAnswers[key] === "A") score += 3;
+    else if (userAnswers[key] === "B") score += 2;
+    else if (userAnswers[key] === "C") score += 1;
+    else if (userAnswers[key] === "D") score += 4;
   }
 
-  // Initialize scores
-  const score = { pop: 0, rock: 0, hiphop: 0 };
+  let resultText = "";
+  if (score <= 6) resultText = "You are Calm and Collected!";
+  else if (score <= 9) resultText = "You are Energetic and Fun!";
+  else resultText = "You are a Natural Leader!";
 
-  // Tally user answers
-  answers.forEach(answer => {
-    score[answer]++;
-  });
-
-  // Determine which genre has the highest score
-  const finalGenre = Object.keys(score).reduce((a, b) =>
-    score[a] > score[b] ? a : b
-  );
-
-  // Generate result text
-  let resultMessage = "";
-  if (finalGenre === "pop") {
-    resultMessage = "🎤 You're Pop! Fun, outgoing, and full of energy!";
-  } else if (finalGenre === "rock") {
-    resultMessage = "🎸 You're Rock! Bold, strong, and independent!";
-  } else {
-    resultMessage = "🎧 You're Hip-Hop! Creative, confident, and expressive!";
-  }
-
-  // Display result
-  document.getElementById("result-text").textContent = resultMessage;
-  document.getElementById("result-container").style.display = "block";
+  // Show result
+  const resultContainer = document.getElementById("result-container");
+  const resultParagraph = document.getElementById("result-text");
+  resultContainer.style.display = "block";
+  resultParagraph.textContent = resultText;
+}
